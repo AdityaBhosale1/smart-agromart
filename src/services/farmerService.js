@@ -25,31 +25,36 @@ export const getFarmerCreditStatus = (pendingCredit, dueDate) => {
 
 export const mapBackendFarmer = (f) => {
   if (!f) return null;
-  const pendingCredit = f.pending_credit || 0;
-  const creditLimit = f.credit_limit || 50000;
+  const pendingCredit = Number(f.pending_credit ?? f.pendingCredit ?? 0);
+  const creditLimit = Number(f.credit_limit ?? f.creditLimit ?? 50000);
+  const totalPurchasesVal = f.total_purchases ?? f.totalPurchases;
+  const totalPurchasesStr = typeof totalPurchasesVal === 'number' ? `₹${totalPurchasesVal}` : (totalPurchasesVal || '₹0');
 
   return {
     id: f.id,
-    code: f.farmer_code || `FMR-2026-${f.id.toString().padStart(4, '0')}`,
-    name: f.name,
-    mobile: f.mobile,
-    alt_mobile: f.alternate_mobile || f.mobile,
+    code: f.farmer_code || f.code || `FMR-2026-${f.id.toString().padStart(4, '0')}`,
+    name: f.name || 'Unknown Farmer',
+    mobile: f.mobile || 'N/A',
+    alt_mobile: f.alternate_mobile || f.alt_mobile || f.mobile || 'N/A',
     village: f.village || 'N/A',
     taluka: f.taluka || f.district || 'N/A',
     district: f.district || 'Solapur',
     state: f.state || 'Maharashtra',
     pincode: f.pincode || '413001',
-    primary_crop: f.primary_crop || 'General',
+    primary_crop: f.primary_crop || f.crop || 'General',
     other_crops: f.other_crops || 'Wheat',
-    land_area: f.land_acreage || f.land_area || 0,
+    land_area: Number(f.land_acreage ?? f.land_area ?? 0),
     land_unit: f.land_unit || 'Acre',
     irrigation_type: f.irrigation_type || 'Well',
     season: f.season || 'Kharif',
     preferred_payment: f.preferred_payment || 'Cash',
     credit_limit: creditLimit,
+    creditLimit: creditLimit,
     pending_credit: pendingCredit,
-    total_purchases: f.total_purchases ? (typeof f.total_purchases === 'number' ? `₹${f.total_purchases}` : f.total_purchases) : '₹0',
-    total_bills: f.total_bills || 0,
+    pendingCredit: pendingCredit,
+    total_purchases: totalPurchasesStr,
+    totalPurchases: totalPurchasesStr,
+    total_bills: Number(f.total_bills ?? 0),
     last_purchase: f.last_purchase || (f.created_at ? f.created_at.split('T')[0] : 'N/A'),
     status: f.status || 'Active',
     credit_status: getFarmerCreditStatus(pendingCredit, f.due_date),

@@ -32,6 +32,19 @@ import productService from '../services/productService';
 import farmerService from '../services/farmerService';
 import { useShop } from '../context/ShopContext';
 
+const formatCurrency = (value) =>
+  Number(value ?? 0).toLocaleString('en-IN', {
+    maximumFractionDigits: 2
+  });
+
+const formatINR = (value) =>
+  `₹${Number(value ?? 0).toLocaleString('en-IN', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  })}`;
+
+const formatNumber = (value) =>
+  Number(value ?? 0).toLocaleString('en-IN');
 
 export const Billing = () => {
   const { shopLogo, shopProfile } = useShop();
@@ -65,11 +78,12 @@ export const Billing = () => {
               id: p.id,
               name: p.name,
               category: p.category || 'General',
-              sellingPrice: Number(p.selling_price) || 0,
-              stock: Number(p.current_stock) || 0,
+              sellingPrice: Number(p.selling_price ?? p.sellingPrice ?? 0),
+              price: Number(p.selling_price ?? p.sellingPrice ?? 0),
+              stock: Number(p.current_stock ?? p.stock ?? 0),
               unit: p.unit || 'Kg',
-              gst: Number(p.gst_rate) || 5,
-              hsn: p.hsn_code || '3808',
+              gst: Number(p.gst_rate ?? p.gst ?? 5),
+              hsn: p.hsn_code || p.hsn || '3808',
               batch: `BT-${p.id}`
             }));
             setProductsList(mappedProds);
@@ -122,8 +136,20 @@ export const Billing = () => {
   // Add Farmer Modal State
   const [newFarmer, setNewFarmer] = useState({ name: '', mobile: '', village: '', crop: 'Wheat & Sugarcane' });
 
-  // Current Selected Farmer Object
-  const currentFarmer = farmersList.find(f => f.id === selectedFarmerId) || farmersList[0];
+  // Current Selected Farmer Object (Guaranteed safe fallback)
+  const currentFarmer = (farmersList && farmersList.find(f => String(f.id) === String(selectedFarmerId))) || (farmersList && farmersList[0]) || {
+    id: 1,
+    name: 'Walk-in Customer',
+    mobile: 'N/A',
+    village: 'N/A',
+    totalPurchases: '₹0',
+    total_purchases: '₹0',
+    pendingCredit: 0,
+    pending_credit: 0
+  };
+
+  const farmerPendingCredit = Number(currentFarmer?.pendingCredit ?? currentFarmer?.pending_credit ?? 0);
+  const farmerTotalPurchases = currentFarmer?.totalPurchases ?? currentFarmer?.total_purchases ?? '₹0';
 
   // ------------------------------------------------------------------
   // CART ACTIONS & CALCULATIONS
@@ -479,17 +505,17 @@ export const Billing = () => {
               <div className="sm:col-span-2 grid grid-cols-3 gap-2 text-xs font-medium">
                 <div className="p-2 rounded-xl bg-gray-50 border border-gray-200/80 space-y-0.5">
                   <span className="text-[10px] text-gray-400 font-bold block uppercase">Mobile & Village</span>
-                  <span className="font-bold text-[#064E3B] truncate block">{currentFarmer.mobile}</span>
-                  <span className="text-[10px] text-gray-500 truncate block">{currentFarmer.village}</span>
+                  <span className="font-bold text-[#064E3B] truncate block">{currentFarmer?.mobile || 'N/A'}</span>
+                  <span className="text-[10px] text-gray-500 truncate block">{currentFarmer?.village || 'N/A'}</span>
                 </div>
                 <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-200 space-y-0.5">
                   <span className="text-[10px] text-emerald-800 font-bold block uppercase">Previous Purchases</span>
-                  <span className="font-extrabold text-emerald-900 text-sm block">{currentFarmer.totalPurchases}</span>
+                  <span className="font-extrabold text-emerald-900 text-sm block">{farmerTotalPurchases}</span>
                   <span className="text-[10px] text-emerald-700 block">Lifetime Orders</span>
                 </div>
                 <div className="p-2 rounded-xl bg-amber-50 border border-amber-200 space-y-0.5">
                   <span className="text-[10px] text-amber-800 font-bold block uppercase">Pending Credit</span>
-                  <span className="font-extrabold text-amber-900 text-sm block">₹{currentFarmer.pendingCredit.toLocaleString()}</span>
+                  <span className="font-extrabold text-amber-900 text-sm block">{formatINR(farmerPendingCredit)}</span>
                   <span className="text-[10px] text-amber-700 block">Digital Khata</span>
                 </div>
               </div>
@@ -635,7 +661,7 @@ export const Billing = () => {
                           </td>
 
                           <td className="py-2.5 text-right font-extrabold text-[#15803D]">
-                            ₹{Math.round(itemAmount).toLocaleString()}
+                            {formatINR(Math.round(itemAmount))}
                           </td>
 
                           <td className="py-2.5 text-center">
@@ -669,7 +695,7 @@ export const Billing = () => {
             <div className="space-y-2 text-xs">
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal (Gross)</span>
-                <span className="font-bold text-gray-800">₹{rawSubtotal.toLocaleString()}</span>
+                <span className="font-bold text-gray-800">{formatINR(rawSubtotal)}</span>
               </div>
 
               {/* OVERALL DISCOUNT FIELD */}
@@ -686,12 +712,12 @@ export const Billing = () => {
 
               <div className="flex justify-between text-gray-600">
                 <span>Taxable Amount</span>
-                <span className="font-bold text-gray-800">₹{taxableAmount.toLocaleString()}</span>
+                <span className="font-bold text-gray-800">{formatINR(taxableAmount)}</span>
               </div>
 
               <div className="flex justify-between text-gray-600">
                 <span>GST (CGST 2.5% + SGST 2.5%)</span>
-                <span className="font-bold text-gray-800">₹{Math.round(totalGst).toLocaleString()}</span>
+                <span className="font-bold text-gray-800">{formatINR(Math.round(totalGst))}</span>
               </div>
 
               <div className="flex justify-between text-gray-400 text-[11px]">
@@ -702,7 +728,7 @@ export const Billing = () => {
               {/* GRAND TOTAL HIGHLIGHT */}
               <div className="pt-3 border-t border-gray-200 flex justify-between items-center text-base font-extrabold text-[#064E3B]">
                 <span>Grand Total</span>
-                <span className="text-xl font-['Outfit'] text-[#15803D]">₹{grandTotal.toLocaleString()}</span>
+                <span className="text-xl font-['Outfit'] text-[#15803D]">{formatINR(grandTotal)}</span>
               </div>
             </div>
           </div>
@@ -757,7 +783,7 @@ export const Billing = () => {
                   </div>
                   <div className="flex justify-between text-xs font-bold pt-1 border-t">
                     <span className="text-gray-600">Return Change:</span>
-                    <span className="text-emerald-700 text-sm">₹{returnAmount.toLocaleString()}</span>
+                    <span className="text-emerald-700 text-sm">{formatINR(returnAmount)}</span>
                   </div>
                 </div>
               )}
@@ -785,7 +811,7 @@ export const Billing = () => {
                 <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 space-y-2">
                   <div className="flex justify-between items-center text-xs">
                     <span className="font-bold text-amber-900">Total Bill:</span>
-                    <span className="font-extrabold text-amber-900">₹{grandTotal}</span>
+                    <span className="font-extrabold text-amber-900">{formatINR(grandTotal)}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <label className="font-bold text-xs text-amber-900">Amount Paid Now (₹)</label>
@@ -798,7 +824,7 @@ export const Billing = () => {
                   </div>
                   <div className="flex justify-between items-center pt-1 border-t border-amber-200">
                     <span className="font-bold text-amber-900">Pending Credit:</span>
-                    <span className="font-extrabold text-rose-600">₹{pendingCreditAmount}</span>
+                    <span className="font-extrabold text-rose-600">{formatINR(pendingCreditAmount)}</span>
                   </div>
                   <div className="space-y-0.5">
                     <label className="text-[10px] font-bold text-amber-900">Credit Due Date</label>
@@ -815,7 +841,7 @@ export const Billing = () => {
               {/* SPLIT PAYMENT */}
               {paymentMethod === 'Split' && (
                 <div className="p-3 rounded-xl bg-sky-50 border border-sky-200 space-y-2">
-                  <span className="text-[10px] font-bold text-sky-900 uppercase block">Split Amounts (Must equal ₹{grandTotal})</span>
+                  <span className="text-[10px] font-bold text-sky-900 uppercase block">Split Amounts (Must equal {formatINR(grandTotal)})</span>
                   <div className="grid grid-cols-3 gap-1">
                     <div>
                       <span className="text-[9px] font-bold text-gray-600 block">Cash (₹)</span>
@@ -886,11 +912,11 @@ export const Billing = () => {
             {/* INVOICE BREAKDOWN */}
             <div className="p-3 rounded-xl bg-gray-50 border space-y-1.5 font-medium">
               <div className="flex justify-between"><span>Farmer:</span><span className="font-bold text-[#064E3B]">{generatedInvoice.farmer.name}</span></div>
-              <div className="flex justify-between"><span>Total Amount:</span><span className="font-extrabold text-[#15803D]">₹{generatedInvoice.grandTotal.toLocaleString()}</span></div>
+              <div className="flex justify-between"><span>Total Amount:</span><span className="font-extrabold text-[#15803D]">{formatINR(generatedInvoice.grandTotal)}</span></div>
               <div className="flex justify-between"><span>Payment Mode:</span><span className="font-bold">{generatedInvoice.paymentMethod}</span></div>
-              <div className="flex justify-between"><span>Paid Amount:</span><span className="font-bold text-emerald-700">₹{generatedInvoice.paidAmount.toLocaleString()}</span></div>
-              {generatedInvoice.pendingAmount > 0 && (
-                <div className="flex justify-between text-rose-600 font-bold border-t pt-1"><span>Pending Credit (Khata):</span><span>₹{generatedInvoice.pendingAmount.toLocaleString()}</span></div>
+              <div className="flex justify-between"><span>Paid Amount:</span><span className="font-bold text-emerald-700">{formatINR(generatedInvoice.paidAmount)}</span></div>
+              {Number(generatedInvoice.pendingAmount) > 0 && (
+                <div className="flex justify-between text-rose-600 font-bold border-t pt-1"><span>Pending Credit (Khata):</span><span>{formatINR(generatedInvoice.pendingAmount)}</span></div>
               )}
             </div>
 
@@ -993,7 +1019,7 @@ export const Billing = () => {
                     <td className="py-2 text-center font-bold">{item.qty} {item.unit}</td>
                     <td className="py-2 text-right">₹{item.rate}</td>
                     <td className="py-2 text-right text-gray-500">{item.gst}%</td>
-                    <td className="py-2 text-right font-extrabold text-[#064E3B]">₹{(item.qty * item.rate).toLocaleString()}</td>
+                    <td className="py-2 text-right font-extrabold text-[#064E3B]">{formatINR((item.qty || 0) * (item.rate || 0))}</td>
                   </tr>
                 ))}
               </tbody>
@@ -1002,13 +1028,13 @@ export const Billing = () => {
             {/* FINANCIAL SUMMARY BREAKDOWN */}
             <div className="border-t pt-3 flex justify-end">
               <div className="w-64 space-y-1.5 text-xs">
-                <div className="flex justify-between text-gray-600"><span>Taxable Value:</span><span>₹{generatedInvoice.taxableAmount.toLocaleString()}</span></div>
-                <div className="flex justify-between text-gray-600"><span>CGST (2.5%):</span><span>₹{Math.round(generatedInvoice.cgst).toLocaleString()}</span></div>
-                <div className="flex justify-between text-gray-600"><span>SGST (2.5%):</span><span>₹{Math.round(generatedInvoice.sgst).toLocaleString()}</span></div>
-                <div className="flex justify-between text-sm font-extrabold text-[#064E3B] border-t pt-1"><span>Grand Total:</span><span>₹{generatedInvoice.grandTotal.toLocaleString()}</span></div>
-                <div className="flex justify-between text-emerald-700 font-bold"><span>Paid ({generatedInvoice.paymentMethod}):</span><span>₹{generatedInvoice.paidAmount.toLocaleString()}</span></div>
-                {generatedInvoice.pendingAmount > 0 && (
-                  <div className="flex justify-between text-rose-600 font-bold"><span>Pending Credit (Due: {generatedInvoice.dueDate}):</span><span>₹{generatedInvoice.pendingAmount.toLocaleString()}</span></div>
+                <div className="flex justify-between text-gray-600"><span>Taxable Value:</span><span>{formatINR(generatedInvoice.taxableAmount)}</span></div>
+                <div className="flex justify-between text-gray-600"><span>CGST (2.5%):</span><span>{formatINR(Math.round(generatedInvoice.cgst))}</span></div>
+                <div className="flex justify-between text-gray-600"><span>SGST (2.5%):</span><span>{formatINR(Math.round(generatedInvoice.sgst))}</span></div>
+                <div className="flex justify-between text-sm font-extrabold text-[#064E3B] border-t pt-1"><span>Grand Total:</span><span>{formatINR(generatedInvoice.grandTotal)}</span></div>
+                <div className="flex justify-between text-emerald-700 font-bold"><span>Paid ({generatedInvoice.paymentMethod}):</span><span>{formatINR(generatedInvoice.paidAmount)}</span></div>
+                {Number(generatedInvoice.pendingAmount) > 0 && (
+                  <div className="flex justify-between text-rose-600 font-bold"><span>Pending Credit (Due: {generatedInvoice.dueDate}):</span><span>{formatINR(generatedInvoice.pendingAmount)}</span></div>
                 )}
               </div>
             </div>
