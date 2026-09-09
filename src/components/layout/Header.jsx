@@ -8,7 +8,7 @@ export const Header = ({ onToggleSidebar, activeTabLabel, setActiveTab }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [currentUser, setCurrentUser] = useState({ name: 'Admin', role: 'AgroMart', email: 'admin@smartagromart.com' });
+  const [currentUser, setCurrentUser] = useState({ name: 'User', role: 'AgroMart', email: '' });
 
   const loadNotifs = async () => {
     try {
