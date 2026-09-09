@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  font-size: 18.5px; /* Proportional ~16% baseline UI scale boost */
+  font-size: 17px; /* Optimal balanced baseline UI scale */
 }
 
 @layer utilities {

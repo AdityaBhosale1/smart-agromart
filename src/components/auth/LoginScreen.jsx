@@ -5,6 +5,7 @@ import { useShop } from '../../context/ShopContext';
 
 export const LoginScreen = ({ onLoginSuccess }) => {
   const { shopLogo, shopProfile } = useShop();
+  const [logoFailed, setLogoFailed] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -39,9 +40,14 @@ export const LoginScreen = ({ onLoginSuccess }) => {
         
         {/* LOGO & BRANDING HEADER */}
         <div className="flex flex-col items-center text-center mb-6">
-          {shopLogo ? (
+          {shopLogo && !logoFailed ? (
             <div className="w-16 h-16 rounded-2xl bg-white border-2 border-emerald-400 p-1 flex items-center justify-center shadow-lg mb-3 overflow-hidden">
-              <img src={shopLogo} alt="Shop Logo" className="w-full h-full object-contain" />
+              <img 
+                src={shopLogo} 
+                alt="Shop Logo" 
+                onError={() => setLogoFailed(true)}
+                className="w-full h-full object-contain" 
+              />
             </div>
           ) : (
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#064E3B] to-[#15803D] flex items-center justify-center text-white shadow-lg mb-3">

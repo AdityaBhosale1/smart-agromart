@@ -42,6 +42,7 @@ export const navItems = [
 
 export const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen, userRole = 'Admin' }) => {
   const { shopLogo } = useShop();
+  const [logoFailed, setLogoFailed] = React.useState(false);
   const allowed = roleAllowedTabs[userRole] || roleAllowedTabs['Admin'];
   const filteredNavItems = navItems.filter(item => allowed.includes(item.id));
 
@@ -54,9 +55,14 @@ export const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen, userRole =
       {/* TOP BRANDING LOGO */}
       <div className="p-4 sm:p-5 border-b border-emerald-900/60 shrink-0">
         <div className="flex items-center gap-3">
-          {shopLogo ? (
+          {shopLogo && !logoFailed ? (
             <div className="w-11 h-11 rounded-xl bg-white border border-emerald-400/40 p-1 flex items-center justify-center shadow-md shrink-0 overflow-hidden">
-              <img src={shopLogo} alt="Shop Logo" className="w-full h-full object-contain" />
+              <img 
+                src={shopLogo} 
+                alt="Shop Logo" 
+                onError={() => setLogoFailed(true)}
+                className="w-full h-full object-contain" 
+              />
             </div>
           ) : (
             <div className="relative w-11 h-11 rounded-xl bg-gradient-to-br from-[#15803D] via-[#22C55E] to-[#DCFCE7] flex items-center justify-center text-[#064E3B] shadow-md shrink-0">
