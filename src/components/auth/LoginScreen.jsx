@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Sprout, Lock, Mail, AlertCircle, Loader2 } from 'lucide-react';
 import authService from '../../services/authService';
+import { useShop } from '../../context/ShopContext';
 
 export const LoginScreen = ({ onLoginSuccess }) => {
+  const { shopLogo, shopProfile } = useShop();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -37,11 +39,17 @@ export const LoginScreen = ({ onLoginSuccess }) => {
         
         {/* LOGO & BRANDING HEADER */}
         <div className="flex flex-col items-center text-center mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#064E3B] to-[#15803D] flex items-center justify-center text-white shadow-lg mb-3">
-            <Sprout className="w-8 h-8" />
-          </div>
+          {shopLogo ? (
+            <div className="w-16 h-16 rounded-2xl bg-white border-2 border-emerald-400 p-1 flex items-center justify-center shadow-lg mb-3 overflow-hidden">
+              <img src={shopLogo} alt="Shop Logo" className="w-full h-full object-contain" />
+            </div>
+          ) : (
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#064E3B] to-[#15803D] flex items-center justify-center text-white shadow-lg mb-3">
+              <Sprout className="w-8 h-8" />
+            </div>
+          )}
           <h1 className="text-2xl font-black text-[#064E3B] font-['Outfit'] tracking-tight">
-            Smart AgroMart
+            {shopProfile?.shop_name || 'Smart AgroMart'}
           </h1>
           <p className="text-xs font-semibold text-gray-500 mt-1">
             AI-Powered Agricultural Shop Management System

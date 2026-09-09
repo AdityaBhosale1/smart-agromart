@@ -28,9 +28,11 @@ import {
 } from 'lucide-react';
 import { initialProducts, initialFarmers } from '../data/mockData';
 import billingService from '../services/billingService';
+import { useShop } from '../context/ShopContext';
 
 
 export const Billing = () => {
+  const { shopLogo, shopProfile } = useShop();
   // ------------------------------------------------------------------
   // STATE MANAGEMENT
   // ------------------------------------------------------------------
@@ -906,11 +908,18 @@ export const Billing = () => {
             
             {/* INVOICE HEADER */}
             <div className="flex justify-between items-start border-b pb-4">
-              <div className="space-y-1">
-                <h2 className="text-xl font-extrabold text-[#064E3B] font-['Outfit']">Smart AgroMart</h2>
-                <p className="text-[11px] text-gray-600 font-medium">Agricultural Shop & Krushi Seva Kendra</p>
-                <p className="text-[10px] text-gray-500">Main Market Road, APMC Yard, Kolhapur - 416003</p>
-                <p className="text-[10px] text-gray-500 font-mono">GSTIN: 27AAAAA0000A1Z5 | Mob: +91 98220 55443</p>
+              <div className="flex items-center gap-3.5">
+                {shopLogo ? (
+                  <div className="w-14 h-14 rounded-xl bg-white border border-gray-200 p-1 flex items-center justify-center shrink-0 overflow-hidden shadow-xs">
+                    <img src={shopLogo} alt="Shop Logo" className="w-full h-full object-contain" />
+                  </div>
+                ) : null}
+                <div className="space-y-0.5">
+                  <h2 className="text-xl font-extrabold text-[#064E3B] font-['Outfit']">{shopProfile?.shop_name || 'Smart AgroMart'}</h2>
+                  <p className="text-[11px] text-gray-600 font-medium">{shopProfile?.business_type || 'Agricultural Shop & Krushi Seva Kendra'}</p>
+                  <p className="text-[10px] text-gray-500">{shopProfile?.address || 'Main Market Road, APMC Yard'}, {shopProfile?.city || 'Nashik'} - {shopProfile?.pincode || '422001'}</p>
+                  <p className="text-[10px] text-gray-500 font-mono">GSTIN: {shopProfile?.gstin || '27AAAAA0000A1Z5'} | Mob: +91 {shopProfile?.mobile || '9876543210'}</p>
+                </div>
               </div>
 
               <div className="text-right space-y-1">

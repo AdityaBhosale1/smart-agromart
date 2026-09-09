@@ -31,8 +31,10 @@ import {
 import { initialMasterProducts } from '../services/productService';
 import { initialMasterSuppliers } from '../services/supplierService';
 import { initialMasterFarmers } from '../services/farmerService';
+import { useShop } from '../context/ShopContext';
 
 export const Reports = () => {
+  const { shopLogo, shopProfile } = useShop();
   // Global Filters State
   const [dateRange, setDateRange] = useState('This Month');
   const [categoryFilter, setCategoryFilter] = useState('All Categories');
@@ -117,6 +119,22 @@ export const Reports = () => {
 
   return (
     <div className="space-y-5 pb-8 font-sans print:p-0">
+
+      {/* PRINT-ONLY REPORT HEADER */}
+      <div className="hidden print:flex items-center justify-between border-b pb-4 mb-4">
+        <div className="flex items-center gap-3">
+          {shopLogo ? (
+            <div className="w-14 h-14 rounded-xl bg-white border border-gray-200 p-1 flex items-center justify-center shrink-0 overflow-hidden">
+              <img src={shopLogo} alt="Shop Logo" className="w-full h-full object-contain" />
+            </div>
+          ) : null}
+          <div>
+            <h1 className="text-xl font-extrabold text-[#064E3B] font-['Outfit']">{shopProfile?.shop_name || 'Smart AgroMart'}</h1>
+            <p className="text-xs text-gray-600 font-medium">Official ERP Business & Analytical Report</p>
+            <p className="text-[10px] text-gray-500">Date Range: {dateRange} | Generated: {new Date().toLocaleDateString()}</p>
+          </div>
+        </div>
+      </div>
 
       {/* ========================================================================= */}
       {/* PAGE HEADER */}

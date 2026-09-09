@@ -16,6 +16,8 @@ import {
   ChevronRight
 } from 'lucide-react';
 
+import { useShop } from '../../context/ShopContext';
+
 export const roleAllowedTabs = {
   Admin: ['dashboard', 'billing', 'inventory', 'products', 'farmers', 'purchases', 'credit', 'ai-insights', 'reports', 'notifications', 'settings'],
   'Shopkeeper / Staff': ['dashboard', 'billing', 'inventory', 'products', 'farmers', 'notifications'],
@@ -39,6 +41,7 @@ export const navItems = [
 ];
 
 export const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen, userRole = 'Admin' }) => {
+  const { shopLogo } = useShop();
   const allowed = roleAllowedTabs[userRole] || roleAllowedTabs['Admin'];
   const filteredNavItems = navItems.filter(item => allowed.includes(item.id));
 
@@ -51,12 +54,18 @@ export const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen, userRole =
       {/* TOP BRANDING LOGO */}
       <div className="p-4 sm:p-5 border-b border-emerald-900/60 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="relative w-11 h-11 rounded-xl bg-gradient-to-br from-[#15803D] via-[#22C55E] to-[#DCFCE7] flex items-center justify-center text-[#064E3B] shadow-md shrink-0">
-            <ShoppingCart className="w-5 h-5 stroke-[2.2]" />
-            <div className="absolute -top-1 -right-1 w-4.5 h-4.5 rounded-full bg-[#064E3B] border border-[#22C55E] flex items-center justify-center text-[#22C55E]">
-              <Sprout className="w-3.5 h-3.5" />
+          {shopLogo ? (
+            <div className="w-11 h-11 rounded-xl bg-white border border-emerald-400/40 p-1 flex items-center justify-center shadow-md shrink-0 overflow-hidden">
+              <img src={shopLogo} alt="Shop Logo" className="w-full h-full object-contain" />
             </div>
-          </div>
+          ) : (
+            <div className="relative w-11 h-11 rounded-xl bg-gradient-to-br from-[#15803D] via-[#22C55E] to-[#DCFCE7] flex items-center justify-center text-[#064E3B] shadow-md shrink-0">
+              <ShoppingCart className="w-5 h-5 stroke-[2.2]" />
+              <div className="absolute -top-1 -right-1 w-4.5 h-4.5 rounded-full bg-[#064E3B] border border-[#22C55E] flex items-center justify-center text-[#22C55E]">
+                <Sprout className="w-3.5 h-3.5" />
+              </div>
+            </div>
+          )}
 
           <div className="flex flex-col">
             <h1 className="font-extrabold text-lg tracking-tight leading-none font-['Outfit'] text-white">

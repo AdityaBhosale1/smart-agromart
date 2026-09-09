@@ -27,6 +27,7 @@ import {
   updateUserRoleInSupabase,
   uploadShopLogoToSupabase
 } from '../services/settingsService';
+import { useShop } from '../context/ShopContext';
 
 export const defaultSettings = {
   shop: defaultShopProfile || {},
@@ -44,6 +45,7 @@ export const defaultSettings = {
 
 
 export const Settings = () => {
+  const { updateShopProfile } = useShop();
   // Navigation Tab State
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(true);
@@ -79,6 +81,7 @@ export const Settings = () => {
       const logoUrl = await uploadShopLogoToSupabase(file);
       const updatedProfile = { ...shopProfile, logo_url: logoUrl };
       setShopProfile(updatedProfile);
+      updateShopProfile(updatedProfile);
       setIsDirty(true);
       await saveAppSettings('profile', updatedProfile);
     } catch (err) {
@@ -93,6 +96,7 @@ export const Settings = () => {
     setLogoError(null);
     const updatedProfile = { ...shopProfile, logo_url: null };
     setShopProfile(updatedProfile);
+    updateShopProfile(updatedProfile);
     setIsDirty(true);
     await saveAppSettings('profile', updatedProfile);
   };
@@ -154,6 +158,7 @@ export const Settings = () => {
 
   // Save Settings Handler
   const handleSaveChanges = async () => {
+    updateShopProfile(shopProfile);
     await Promise.all([
       saveAppSettings('profile', shopProfile),
       saveAppSettings('billing', billingConfig),
