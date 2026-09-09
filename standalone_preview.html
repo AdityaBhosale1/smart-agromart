@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart AgroMart - Top Header Foundation</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            agro: {
+              dark: '#064E3B',
+              primary: '#15803D',
+              fresh: '#22C55E',
+              light: '#DCFCE7',
+              gray: '#64748B'
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+            display: ['Outfit', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes leafBreezeLeft {
+      0%, 100% { transform: rotate(0deg) translateY(0px); }
+      50% { transform: rotate(1.2deg) translateY(3px); }
+    }
+    @keyframes leafBreezeRight {
+      0%, 100% { transform: rotate(0deg) translateY(0px); }
+      50% { transform: rotate(-1.5deg) translateY(4px); }
+    }
+    .animate-leaf-left { animation: leafBreezeLeft 9s ease-in-out infinite; transform-origin: top left; }
+    .animate-leaf-right { animation: leafBreezeRight 11s ease-in-out infinite; transform-origin: top right; }
+  </style>
+</head>
+<body class="bg-[#f4fbf7] text-gray-800 antialiased min-h-screen w-screen overflow-x-hidden select-none flex flex-col">
+
+  <!-- 1. BRIGHT SKY & LIGHT GRADIENT TOP LAYER -->
+  <div class="fixed inset-0 bg-gradient-to-b from-[#e1f2f8] via-[#f4fbf7] to-[#e8f5ec] pointer-events-none z-0"></div>
+  
+  <!-- SOFT SUNLIGHT FLARE -->
+  <div class="fixed -top-36 left-1/2 -translate-x-1/2 w-[900px] h-[550px] bg-gradient-to-b from-amber-100/70 via-emerald-100/30 to-transparent rounded-full blur-3xl pointer-events-none z-0"></div>
+
+  <!-- 2. SCENIC AGRICULTURAL LANDSCAPE BACKDROP -->
+  <div class="fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none opacity-95 mix-blend-multiply z-0" style="background-image: url('./src/assets/agromart_pure_bg.jpg');"></div>
+
+  <!-- 3. SUBTLE WHITE TRANSPARENT RADIAL GRADIENT IN CENTER -->
+  <div class="fixed inset-0 pointer-events-none z-0" style="background: radial-gradient(ellipse 70% 70% at 50% 46%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.68) 42%, rgba(255, 255, 255, 0.3) 72%, transparent 100%);"></div>
+
+  <!-- 4. HANGING LEAVES OVERLAY -->
+  <div class="pointer-events-none fixed inset-0 overflow-hidden z-20">
+    <div class="absolute -top-4 -left-6 w-80 md:w-96 lg:w-[480px] animate-leaf-left filter drop-shadow-md">
+      <svg viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
+        <defs>
+          <linearGradient id="l1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#064E3B"/><stop offset="50%" stop-color="#15803D"/><stop offset="100%" stop-color="#22C55E"/>
+          </linearGradient>
+        </defs>
+        <path d="M -20 -10 C 120 20, 220 100, 310 170 C 340 195, 380 230, 420 250" stroke="#064E3B" stroke-width="7" stroke-linecap="round"/>
+        <g transform="translate(40, 20) rotate(25)"><path d="M0,0 C40,-30 110,-20 150,30 C110,60 40,50 0,0 Z" fill="url(#l1)"/></g>
+        <g transform="translate(140, 80) rotate(50)"><path d="M0,0 C50,-40 130,-30 180,40 C130,80 50,60 0,0 Z" fill="url(#l1)"/></g>
+      </svg>
+    </div>
+    <div class="absolute -top-4 -right-6 w-80 md:w-96 lg:w-[480px] animate-leaf-right filter drop-shadow-md">
+      <svg viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
+        <path d="M 520 -10 C 380 30, 280 110, 190 180 C 160 205, 120 240, 80 260" stroke="#064E3B" stroke-width="7" stroke-linecap="round"/>
+        <g transform="translate(420, 30) scale(-1, 1) rotate(25)"><path d="M0,0 C40,-30 110,-20 150,30 C110,60 40,50 0,0 Z" fill="url(#l1)"/></g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 5. TOP HEADER (BRANDING + SEARCH + NOTIFICATION + ADMIN PROFILE) -->
+  <header class="w-full h-[72px] px-4 sm:px-6 lg:px-8 bg-white/75 backdrop-blur-md border-b border-white/80 shadow-sm flex items-center justify-between z-40 relative">
+    
+    <!-- LEFT BRANDING -->
+    <div class="flex items-center gap-3">
+      <div class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#064E3B] via-[#15803D] to-[#22C55E] flex items-center justify-center text-white shadow-sm shrink-0 font-bold text-lg">
+        🛒
+      </div>
+      <div class="flex flex-col">
+        <span class="font-extrabold text-lg sm:text-xl tracking-tight text-[#064E3B] font-display leading-tight">
+          Smart AgroMart
+        </span>
+        <span class="text-[11px] font-semibold text-[#64748B] tracking-wide">
+          AI-Powered Agricultural Shop
+        </span>
+      </div>
+    </div>
+
+    <!-- CENTER SEARCH BAR -->
+    <div class="hidden md:flex flex-1 max-w-md mx-6">
+      <div class="relative w-full flex items-center">
+        <span class="absolute left-3.5 text-[#64748B] text-xs">🔍</span>
+        <input
+          type="text"
+          placeholder="Search products, farmers, bills..."
+          class="w-full pl-9 pr-4 py-2 text-xs font-medium text-[#064E3B] placeholder-[#64748B] bg-white/70 hover:bg-white/90 focus:bg-white border border-[#DCFCE7] focus:border-[#22C55E] rounded-full shadow-xs outline-none transition-all duration-200"
+        />
+      </div>
+    </div>
+
+    <!-- RIGHT NOTIFICATION & ADMIN PROFILE -->
+    <div class="flex items-center gap-3 sm:gap-4">
+      <!-- NOTIFICATION BELL -->
+      <button class="relative w-10 h-10 rounded-full bg-white/80 hover:bg-white border border-white/90 text-[#064E3B] flex items-center justify-center shadow-xs">
+        🔔
+        <span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#22C55E]"></span>
+      </button>
+
+      <div class="w-[1px] h-6 bg-gray-200"></div>
+
+      <!-- ADMIN PROFILE -->
+      <div class="flex items-center gap-2.5 cursor-pointer py-1 px-2 rounded-xl hover:bg-white/60">
+        <div class="relative w-9 h-9 rounded-full bg-gradient-to-tr from-[#064E3B] to-[#15803D] text-white font-bold text-xs flex items-center justify-center shadow-xs border-2 border-white">
+          AM
+          <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#22C55E] ring-2 ring-white"></span>
+        </div>
+        <div class="hidden sm:flex flex-col text-left">
+          <span class="text-xs font-bold text-[#064E3B] font-display leading-tight">Admin</span>
+          <span class="text-[10px] font-semibold text-[#64748B] leading-tight">AgroMart</span>
+        </div>
+        <span class="text-xs text-[#64748B]">▼</span>
+      </div>
+    </div>
+  </header>
+
+</body>
+</html>

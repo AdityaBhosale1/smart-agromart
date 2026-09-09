@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  /* Subtle ambient leaf breeze animation (calm, non-distracting) */
+  @keyframes leafBreezeLeft {
+    0%, 100% {
+      transform: rotate(0deg) translateY(0px);
+    }
+    50% {
+      transform: rotate(1.2deg) translateY(3px);
+    }
+  }
+
+  @keyframes leafBreezeRight {
+    0%, 100% {
+      transform: rotate(0deg) translateY(0px);
+    }
+    50% {
+      transform: rotate(-1.5deg) translateY(4px);
+    }
+  }
+
+  @keyframes softSunGlow {
+    0%, 100% {
+      opacity: 0.75;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.03);
+    }
+  }
+
+  .animate-leaf-left {
+    animation: leafBreezeLeft 9s ease-in-out infinite;
+    transform-origin: top left;
+  }
+
+  .animate-leaf-right {
+    animation: leafBreezeRight 11s ease-in-out infinite;
+    transform-origin: top right;
+  }
+
+  .animate-sun-glow {
+    animation: softSunGlow 14s ease-in-out infinite;
+  }
+}
+
+/* Custom scrollbars for clean presentation */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f3;
+}
+::-webkit-scrollbar-thumb {
+  background: #b7e4c7;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #52b788;
+}
