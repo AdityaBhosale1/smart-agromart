@@ -258,7 +258,7 @@ export const Products = () => {
     setShowAddEditModal(true);
   };
 
-  // Handle Form Submit (Add / Edit) with API
+  // Handle Form Submit (Add / Edit) with pure Supabase
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
@@ -267,30 +267,37 @@ export const Products = () => {
       setFormError('Product Name is required!');
       return;
     }
-    if (formData.purchase_price < 0 || formData.selling_price <= 0) {
+    if (Number(formData.purchase_price || 0) < 0 || Number(formData.selling_price || 0) <= 0) {
       setFormError('Prices must be positive numbers!');
       return;
     }
-    if (formData.selling_price < formData.purchase_price) {
+    if (Number(formData.selling_price || 0) < Number(formData.purchase_price || 0)) {
       setFormError('Selling price is lower than purchase price!');
       return;
+    }
+    if (formData.expiry_date && formData.manufacturing_date) {
+      if (new Date(formData.expiry_date) < new Date(formData.manufacturing_date)) {
+        setFormError('Expiry date cannot be earlier than manufacturing date!');
+        return;
+      }
     }
 
     setSubmitting(true);
     try {
       if (editingProductId) {
-        // Edit Existing Product via API
+        // Edit Existing Product via Supabase
         await productService.updateProduct(editingProductId, formData);
         showToast('Product updated successfully!');
       } else {
-        // Add New Product via API
+        // Add New Product via Supabase
         await productService.createProduct(formData);
         showToast('Product added successfully!');
       }
       setShowAddEditModal(false);
       await fetchProducts();
     } catch (err) {
-      setFormError(getApiErrorMessage(err, 'Failed to save product. Check inputs.'));
+      console.error('Save product error:', err);
+      setFormError(err.message || getApiErrorMessage(err, 'Failed to save product. Check inputs.'));
     } finally {
       setSubmitting(false);
     }
