@@ -284,3 +284,48 @@ export const updateUserRoleInSupabase = async (userId, newRole) => {
   }
 };
 
+export const uploadShopLogoToSupabase = async (file) => {
+  if (!file) throw new Error('No file selected.');
+  if (file.size > 2 * 1024 * 1024) {
+    throw new Error('File size exceeds maximum 2MB limit.');
+  }
+
+  const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/svg+xml'];
+  if (!validTypes.includes(file.type)) {
+    throw new Error('Invalid file format. Please upload PNG, JPG, WEBP, or SVG.');
+  }
+
+  // Attempt Supabase Storage upload first
+  if (isSupabaseConfigured()) {
+    try {
+      const fileExt = file.name.split('.').pop() || 'png';
+      const fileName = `logos/shop-logo-${Date.now()}.${fileExt}`;
+
+      const { data, error } = await supabase.storage
+        .from('shop-assets')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (!error && data?.path) {
+        const { data: pubData } = supabase.storage.from('shop-assets').getPublicUrl(data.path);
+        if (pubData?.publicUrl) {
+          return pubData.publicUrl;
+        }
+      }
+    } catch (e) {
+      console.warn('Supabase storage upload failed, falling back to base64 encoding:', e.message);
+    }
+  }
+
+  // Fallback to Data URL for 100% reliable local/app_settings storage
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('Failed to read image file.'));
+    reader.readAsDataURL(file);
+  });
+};
+
+

@@ -47,7 +47,7 @@ export const Header = ({ onToggleSidebar, activeTabLabel, setActiveTab }) => {
     : 'AM';
 
   return (
-    <header className="sticky top-0 z-30 w-full h-16 px-4 sm:px-6 bg-white/85 backdrop-blur-md border-b border-gray-200/80 flex items-center justify-between shrink-0 select-none">
+    <header className="sticky top-0 z-30 w-full h-18 py-2.5 px-4 sm:px-6 bg-white/85 backdrop-blur-md border-b border-gray-200/80 flex items-center justify-between shrink-0 select-none">
       
       {/* LEFT: HAMBURGER TOGGLE + DASHBOARD TITLE & SUBTITLE */}
       <div className="flex items-center gap-3">
@@ -60,23 +60,23 @@ export const Header = ({ onToggleSidebar, activeTabLabel, setActiveTab }) => {
         </button>
         
         <div className="flex flex-col">
-          <h2 className="text-sm font-extrabold text-[#064E3B] font-['Outfit'] capitalize leading-tight">
+          <h2 className="text-base font-extrabold text-[#064E3B] font-['Outfit'] capitalize leading-tight">
             {activeTabLabel || 'Dashboard'}
           </h2>
-          <span className="text-[10px] text-gray-500 font-medium">
+          <span className="text-[11px] text-gray-500 font-medium">
             Smart AgroMart Operating System
           </span>
         </div>
       </div>
 
-      {/* CENTER: SEARCH BAR (340px max-width) */}
-      <div className="hidden md:flex flex-1 max-w-[340px] mx-4">
+      {/* CENTER: SEARCH BAR (380px max-width) */}
+      <div className="hidden md:flex flex-1 max-w-[380px] mx-4">
         <div className="relative w-full flex items-center">
           <Search className="absolute left-3 w-4 h-4 text-gray-400 pointer-events-none" />
           <input
             type="text"
             placeholder="Search products, farmers, bills..."
-            className="w-full pl-9 pr-4 py-1.5 text-xs font-medium text-[#064E3B] placeholder-gray-400 bg-gray-50/80 hover:bg-white focus:bg-white border border-gray-200 focus:border-[#22C55E] rounded-full shadow-xs outline-none transition-all duration-200 focus:ring-2 focus:ring-[#22C55E]/30"
+            className="w-full pl-9 pr-4 py-2 text-xs sm:text-[13px] font-medium text-[#064E3B] placeholder-gray-400 bg-gray-50/80 hover:bg-white focus:bg-white border border-gray-200 focus:border-[#22C55E] rounded-full shadow-xs outline-none transition-all duration-200 focus:ring-2 focus:ring-[#22C55E]/30"
           />
         </div>
       </div>

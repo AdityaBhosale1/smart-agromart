@@ -107,7 +107,7 @@ export const DashboardLayout = () => {
     <div className="w-full flex items-center justify-center select-none relative z-30">
       
       {/* MAIN CENTERED FLOATING DASHBOARD APPLICATION CONTAINER */}
-      <div className="w-full max-w-[1720px] lg:w-[90vw] h-[90vh] lg:h-[86vh] rounded-[22px] bg-white/85 backdrop-blur-md border border-white/90 shadow-2xl overflow-hidden flex flex-row relative">
+      <div className="w-full max-w-[1960px] lg:w-[97vw] h-[96vh] lg:h-[93vh] rounded-[26px] bg-white/85 backdrop-blur-md border border-white/90 shadow-2xl overflow-hidden flex flex-row relative">
         
         {/* MOBILE SIDEBAR BACKDROP OVERLAY */}
         {isSidebarOpen && (

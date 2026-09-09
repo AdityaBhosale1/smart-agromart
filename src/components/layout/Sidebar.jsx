@@ -44,25 +44,25 @@ export const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen, userRole =
 
   return (
     <aside 
-      className={`fixed lg:relative z-50 h-full w-[225px] bg-[#064E3B] text-white flex flex-col justify-between transition-all duration-300 shadow-xl border-r border-[#064E3B]/40 shrink-0 ${
+      className={`fixed lg:relative z-50 h-full w-[275px] bg-[#064E3B] text-white flex flex-col justify-between transition-all duration-300 shadow-xl border-r border-[#064E3B]/40 shrink-0 ${
         isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}
     >
       {/* TOP BRANDING LOGO */}
-      <div className="p-4 border-b border-emerald-900/60 shrink-0">
+      <div className="p-4 sm:p-5 border-b border-emerald-900/60 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-[#15803D] via-[#22C55E] to-[#DCFCE7] flex items-center justify-center text-[#064E3B] shadow-md shrink-0">
-            <ShoppingCart className="w-4 h-4 stroke-[2.2]" />
-            <div className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#064E3B] border border-[#22C55E] flex items-center justify-center text-[#22C55E]">
-              <Sprout className="w-2.5 h-2.5" />
+          <div className="relative w-11 h-11 rounded-xl bg-gradient-to-br from-[#15803D] via-[#22C55E] to-[#DCFCE7] flex items-center justify-center text-[#064E3B] shadow-md shrink-0">
+            <ShoppingCart className="w-5 h-5 stroke-[2.2]" />
+            <div className="absolute -top-1 -right-1 w-4.5 h-4.5 rounded-full bg-[#064E3B] border border-[#22C55E] flex items-center justify-center text-[#22C55E]">
+              <Sprout className="w-3.5 h-3.5" />
             </div>
           </div>
 
           <div className="flex flex-col">
-            <h1 className="font-extrabold text-base tracking-tight leading-none font-['Outfit'] text-white">
+            <h1 className="font-extrabold text-lg tracking-tight leading-none font-['Outfit'] text-white">
               Smart <span className="text-[#22C55E]">AgroMart</span>
             </h1>
-            <span className="text-[10px] font-semibold text-emerald-300/80 mt-1 tracking-wider uppercase">
+            <span className="text-[11px] font-semibold text-emerald-300/80 mt-1 tracking-wider uppercase">
               AI Agro SaaS
             </span>
           </div>
@@ -70,7 +70,7 @@ export const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen, userRole =
       </div>
 
       {/* SCROLLABLE MENU ITEMS LIST */}
-      <div className="flex-1 py-3 px-2.5 overflow-y-auto space-y-1 custom-scrollbar">
+      <div className="flex-1 py-4 px-3.5 overflow-y-auto space-y-1.5 custom-scrollbar">
         {filteredNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -82,14 +82,14 @@ export const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen, userRole =
                 setActiveTab(item.id);
                 if (window.innerWidth < 1024) setIsOpen(false);
               }}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 group ${
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs sm:text-[14px] font-bold transition-all duration-200 group ${
                 isActive
                   ? 'bg-[#15803D] text-white shadow-md border border-emerald-500/30'
                   : 'text-emerald-100/80 hover:bg-[#15803D]/40 hover:text-white'
               }`}
             >
-              <div className="flex items-center gap-2.5 truncate">
-                <Icon className={`w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-110 ${
+              <div className="flex items-center gap-3.5 truncate">
+                <Icon className={`w-5 h-5 shrink-0 transition-transform duration-200 group-hover:scale-110 ${
                   isActive ? 'text-white' : 'text-emerald-400'
                 }`} />
                 <span className="truncate">{item.label}</span>

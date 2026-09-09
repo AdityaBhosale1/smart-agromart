@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Settings as SettingsIcon, Save, Store, Shield, Database, 
   FileText, Scale, CreditCard, Users, Package, BrainCircuit, 
@@ -24,7 +24,8 @@ import {
   getAppSettings,
   saveAppSettings,
   getProfilesFromSupabase,
-  updateUserRoleInSupabase
+  updateUserRoleInSupabase,
+  uploadShopLogoToSupabase
 } from '../services/settingsService';
 
 export const defaultSettings = {
@@ -65,6 +66,36 @@ export const Settings = () => {
   const [isResetDemoOpen, setIsResetDemoOpen] = useState(false);
   const [saveToast, setSaveToast] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [logoError, setLogoError] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleLogoSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingLogo(true);
+    setLogoError(null);
+    try {
+      const logoUrl = await uploadShopLogoToSupabase(file);
+      const updatedProfile = { ...shopProfile, logo_url: logoUrl };
+      setShopProfile(updatedProfile);
+      setIsDirty(true);
+      await saveAppSettings('profile', updatedProfile);
+    } catch (err) {
+      setLogoError(err.message || 'Failed to upload logo.');
+    } finally {
+      setIsUploadingLogo(false);
+      if (e.target) e.target.value = '';
+    }
+  };
+
+  const handleRemoveLogo = async () => {
+    setLogoError(null);
+    const updatedProfile = { ...shopProfile, logo_url: null };
+    setShopProfile(updatedProfile);
+    setIsDirty(true);
+    await saveAppSettings('profile', updatedProfile);
+  };
 
   // Sync settings with Supabase app_settings & profiles tables on load
   useEffect(() => {
@@ -301,25 +332,49 @@ export const Settings = () => {
 
               {/* LOGO UPLOAD BOX */}
               <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-[#064E3B] text-white font-extrabold text-xl flex items-center justify-center border-2 border-emerald-400 shrink-0">
-                  AGM
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleLogoSelect} 
+                  accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml" 
+                  className="hidden" 
+                />
+                <div className="w-16 h-16 rounded-2xl bg-[#064E3B] text-white font-extrabold text-xl flex items-center justify-center border-2 border-emerald-400 shrink-0 overflow-hidden relative">
+                  {shopProfile.logo_url ? (
+                    <img 
+                      src={shopProfile.logo_url} 
+                      alt="Shop Logo" 
+                      className="w-full h-full object-contain p-1 bg-white" 
+                    />
+                  ) : (
+                    <span>AGM</span>
+                  )}
                 </div>
                 <div className="space-y-1">
                   <span className="font-extrabold text-gray-900 block text-xs">Upload Official Shop Logo</span>
-                  <p className="text-[11px] text-gray-500">Logo will be printed on GST Tax Invoices, Receipts, and Reports (PNG, JPG, SVG)</p>
+                  <p className="text-[11px] text-gray-500">Logo will be printed on GST Tax Invoices, Receipts, and Reports (PNG, JPG, SVG - Max 2MB)</p>
+                  {logoError && (
+                    <p className="text-[11px] text-red-600 font-medium">{logoError}</p>
+                  )}
                   <div className="flex items-center gap-2 pt-1">
                     <button
-                      onClick={() => alert('Simulating Shop Logo upload...')}
-                      className="px-3 py-1 rounded-lg bg-[#064E3B] text-white font-bold text-[11px]"
+                      type="button"
+                      disabled={isUploadingLogo}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-3 py-1 rounded-lg bg-[#064E3B] text-white font-bold text-[11px] hover:bg-[#064E3B]/90 disabled:opacity-50 transition-colors"
                     >
-                      Upload Logo
+                      {isUploadingLogo ? 'Uploading...' : 'Upload Logo'}
                     </button>
-                    <button
-                      onClick={() => alert('Logo removed.')}
-                      className="px-3 py-1 rounded-lg bg-gray-200 text-gray-700 font-bold text-[11px]"
-                    >
-                      Remove
-                    </button>
+                    {shopProfile.logo_url && (
+                      <button
+                        type="button"
+                        disabled={isUploadingLogo}
+                        onClick={handleRemoveLogo}
+                        className="px-3 py-1 rounded-lg bg-gray-200 text-gray-700 font-bold text-[11px] hover:bg-gray-300 transition-colors"
+                      >
+                        Remove
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
