@@ -24,22 +24,31 @@ export const getStockStatus = (stock, minStock, expiryDate) => {
 
 export const mapBackendProduct = (p) => {
   if (!p) return null;
-  const stock = p.total_stock !== undefined ? p.total_stock : (p.current_stock || 0);
-  const minStock = p.min_stock_alert !== undefined ? p.min_stock_alert : (p.minimum_stock || 10);
-  
+  const numId = Number(p.id);
+  const stock = Number(p.total_stock !== undefined ? p.total_stock : (p.current_stock ?? p.stock ?? 0));
+  const minStock = Number(p.min_stock_alert !== undefined ? p.min_stock_alert : (p.minimum_stock ?? 10));
+  const sellingPrice = Number(p.selling_price ?? p.sellingPrice ?? 0);
+  const purchasePrice = Number(p.purchase_price ?? p.purchasePrice ?? 0);
+  const gstRate = Number(p.gst_percent !== undefined ? p.gst_percent : (p.gst_rate ?? p.gst ?? 5));
+
   return {
-    id: p.id,
-    product_code: p.product_code || `PRD-${p.id}`,
-    name: p.name,
+    id: numId,
+    product_id: numId,
+    product_code: p.product_code || `PRD-${numId}`,
+    name: p.name || 'Unnamed Product',
     category: p.category_name || (p.category?.name) || 'General',
     category_id: p.category_id,
     brand: p.brand || 'Generic',
     composition: p.composition || '',
     hsn_code: p.hsn_code || '3808',
-    gst_rate: p.gst_percent !== undefined ? p.gst_percent : (p.gst_rate || 5),
-    purchase_price: p.purchase_price || 0,
-    selling_price: p.selling_price || 0,
+    gst_rate: gstRate,
+    gst: gstRate,
+    purchase_price: purchasePrice,
+    purchasePrice: purchasePrice,
+    selling_price: sellingPrice,
+    sellingPrice: sellingPrice,
     current_stock: stock,
+    stock: stock,
     minimum_stock: minStock,
     unit: p.unit || 'Kg',
     status: p.status === 'Inactive' ? 'Inactive' : getStockStatus(stock, minStock, p.expiry_date),

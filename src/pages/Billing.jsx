@@ -74,26 +74,36 @@ export const Billing = () => {
         ]);
         if (isMounted) {
           if (prods && prods.length > 0) {
-            const mappedProds = prods.map(p => ({
-              id: p.id,
-              name: p.name,
-              category: p.category || 'General',
-              sellingPrice: Number(p.selling_price ?? p.sellingPrice ?? 0),
-              price: Number(p.selling_price ?? p.sellingPrice ?? 0),
-              stock: Number(p.current_stock ?? p.stock ?? 0),
-              unit: p.unit || 'Kg',
-              gst: Number(p.gst_rate ?? p.gst ?? 5),
-              hsn: p.hsn_code || p.hsn || '3808',
-              batch: `BT-${p.id}`
-            }));
+            const mappedProds = prods.map(p => {
+              const numId = Number(p.id || p.product_id);
+              return {
+                id: numId,
+                product_id: numId,
+                name: p.name,
+                category: p.category || 'General',
+                sellingPrice: Number(p.selling_price ?? p.sellingPrice ?? 0),
+                selling_price: Number(p.selling_price ?? p.sellingPrice ?? 0),
+                price: Number(p.selling_price ?? p.sellingPrice ?? 0),
+                stock: Number(p.current_stock ?? p.stock ?? 0),
+                current_stock: Number(p.current_stock ?? p.stock ?? 0),
+                unit: p.unit || 'Kg',
+                gst: Number(p.gst_rate ?? p.gst ?? 5),
+                gst_rate: Number(p.gst_rate ?? p.gst ?? 5),
+                hsn: p.hsn_code || p.hsn || '3808',
+                batch: `BT-${numId}`
+              };
+            });
             setProductsList(mappedProds);
 
-            // Filter out any stale cart items not matching live products
+            // Filter out any stale cart items not matching live products or having non-integer IDs
             setCart(prevCart => {
               if (!prevCart || prevCart.length === 0) return [];
-              const validCart = prevCart.filter(item => mappedProds.some(lp => String(lp.id) === String(item.id)));
+              const validCart = prevCart.filter(item => {
+                const itemProdId = Number(item.product_id || item.id);
+                return Number.isInteger(itemProdId) && itemProdId > 0 && mappedProds.some(lp => Number(lp.product_id || lp.id) === itemProdId);
+              });
               if (validCart.length < prevCart.length) {
-                setErrorMessage('This product is no longer available and was removed from the cart.');
+                setErrorMessage('Stale or unavailable products were removed from the cart.');
               }
               return validCart;
             });
@@ -107,6 +117,12 @@ export const Billing = () => {
         console.warn('Failed loading live Supabase products/farmers:', err.message);
       }
     }
+
+    try {
+      localStorage.removeItem('agromart_cart');
+      sessionStorage.removeItem('agromart_cart');
+    } catch (e) {}
+
     loadLiveBillingData();
     return () => { isMounted = false; };
   }, []);
@@ -156,34 +172,49 @@ export const Billing = () => {
   // ------------------------------------------------------------------
   const handleAddToCart = (product) => {
     setErrorMessage('');
-    if (product.stock <= 0) {
+    const rawId = product?.product_id ?? product?.id;
+    const numId = Number(rawId);
+
+    if (!rawId || isNaN(numId) || !Number.isInteger(numId) || numId <= 0) {
+      setErrorMessage("Unable to add product because its database ID is missing.");
+      return;
+    }
+
+    const availableStock = Number(product.stock ?? product.current_stock ?? 0);
+    if (availableStock <= 0) {
       setErrorMessage(`Sorry, ${product.name} is currently Out of Stock!`);
       return;
     }
 
-    const existingIndex = cart.findIndex(item => String(item.id) === String(product.id));
+    const existingIndex = cart.findIndex(item => Number(item.product_id || item.id) === numId);
 
     if (existingIndex > -1) {
       const updatedCart = [...cart];
-      if (updatedCart[existingIndex].qty + 1 > product.stock) {
-        setErrorMessage(`Cannot exceed available stock of ${product.stock} ${product.unit} for ${product.name}`);
+      if (updatedCart[existingIndex].qty + 1 > availableStock) {
+        setErrorMessage(`Cannot exceed available stock of ${availableStock} ${product.unit} for ${product.name}`);
         return;
       }
       updatedCart[existingIndex].qty += 1;
+      updatedCart[existingIndex].quantity = updatedCart[existingIndex].qty;
       setCart(updatedCart);
     } else {
       setCart([
         ...cart,
         {
-          id: product.id,
+          id: numId,
+          product_id: numId,
           name: product.name,
-          batch: product.batch || `BT-${product.id}`,
+          batch: product.batch || `BT-${numId}`,
           qty: 1,
+          quantity: 1,
           unit: product.unit || 'Bag',
-          rate: product.sellingPrice,
-          gst: product.gst,
+          rate: Number(product.sellingPrice ?? product.selling_price ?? 0),
+          selling_price: Number(product.sellingPrice ?? product.selling_price ?? 0),
+          gst: Number(product.gst ?? product.gst_rate ?? 5),
+          gst_rate: Number(product.gst ?? product.gst_rate ?? 5),
           discount: 0,
-          stock: product.stock,
+          discount_amount: 0,
+          stock: availableStock,
           hsn: product.hsn || '3808'
         }
       ]);
@@ -192,7 +223,8 @@ export const Billing = () => {
 
   const updateCartQty = (id, newQty) => {
     setErrorMessage('');
-    const targetItem = cart.find(item => String(item.id) === String(id));
+    const targetId = Number(id);
+    const targetItem = cart.find(item => Number(item.product_id || item.id) === targetId);
     if (!targetItem) return;
 
     const parsedQty = Math.max(1, Number(newQty));
@@ -201,15 +233,18 @@ export const Billing = () => {
       return;
     }
 
-    setCart(cart.map(item => String(item.id) === String(id) ? { ...item, qty: parsedQty } : item));
+    setCart(cart.map(item => Number(item.product_id || item.id) === targetId ? { ...item, qty: parsedQty, quantity: parsedQty } : item));
   };
 
   const updateCartDiscount = (id, newDiscount) => {
-    setCart(cart.map(item => String(item.id) === String(id) ? { ...item, discount: Math.max(0, Number(newDiscount)) } : item));
+    const targetId = Number(id);
+    const disc = Math.max(0, Number(newDiscount));
+    setCart(cart.map(item => Number(item.product_id || item.id) === targetId ? { ...item, discount: disc, discount_amount: disc } : item));
   };
 
   const removeFromCart = (id) => {
-    setCart(cart.filter(item => String(item.id) !== String(id)));
+    const targetId = Number(id);
+    setCart(cart.filter(item => Number(item.product_id || item.id) !== targetId));
   };
 
   const handleResetBill = () => {
@@ -269,17 +304,20 @@ export const Billing = () => {
     }
 
     for (let item of cart) {
-      if (!item.id || item.qty <= 0) {
-        setErrorMessage(`Invalid details in cart for product ${item.name || ''}.`);
+      const prodId = Number(item.product_id || item.id);
+      const qty = Number(item.quantity || item.qty);
+
+      if (!Number.isInteger(prodId) || prodId <= 0 || !Number.isInteger(qty) || qty <= 0) {
+        setErrorMessage("Invalid product selected. Please remove it and add the product again.");
         return;
       }
-      const liveProd = productsList.find(p => String(p.id) === String(item.id));
+      const liveProd = productsList.find(p => Number(p.product_id || p.id) === prodId);
       if (!liveProd) {
-        setErrorMessage(`Cannot generate bill: Product '${item.name}' (ID ${item.id}) no longer exists in live inventory.`);
+        setErrorMessage(`Cannot generate bill: Product '${item.name}' (ID ${prodId}) no longer exists in live inventory.`);
         return;
       }
-      if (item.qty > item.stock) {
-        setErrorMessage(`Insufficient stock for ${item.name}. Available: ${item.stock}`);
+      if (qty > liveProd.stock) {
+        setErrorMessage(`Insufficient stock for ${item.name}. Available: ${liveProd.stock}`);
         return;
       }
     }
@@ -318,9 +356,10 @@ export const Billing = () => {
         due_date: pendingCreditAmount > 0 ? (dueDate ? new Date(dueDate).toISOString() : null) : null,
         notes: `Billing POS Invoice for ${currentFarmer.name}`,
         items: cart.map(item => ({
-          product_id: Number(item.id),
-          quantity: Number(item.qty),
-          discount_amount: Number(item.discount || 0)
+          product_id: Number(item.product_id || item.id),
+          quantity: Number(item.quantity || item.qty || 1),
+          discount: Number(item.discount || item.discount_amount || 0),
+          discount_amount: Number(item.discount || item.discount_amount || 0)
         }))
       };
 

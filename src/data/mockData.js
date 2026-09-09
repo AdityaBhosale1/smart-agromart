@@ -130,13 +130,13 @@ export const smartAlerts = [
 ];
 
 export const initialProducts = [
-  { id: 'P101', name: 'DAP Fertilizer 50kg', category: 'Fertilizers', brand: 'IFFCO', gst: 5, purchasePrice: 1200, sellingPrice: 1350, stock: 35, unit: 'Bags', batch: 'BT2026A', expiry: '2027-08-15', status: 'Low Stock' },
-  { id: 'P102', name: 'Urea Fertilizer 45kg', category: 'Fertilizers', brand: 'KRIBHCO', gst: 5, purchasePrice: 242, sellingPrice: 266, stock: 8, unit: 'Bags', batch: 'BT2026B', expiry: '2028-01-10', status: 'Low Stock' },
-  { id: 'P103', name: 'NPK 19:19:19 1kg', category: 'Fertilizers', brand: 'Mahadhan', gst: 12, purchasePrice: 140, sellingPrice: 180, stock: 145, unit: 'Packets', batch: 'BT2025C', expiry: '2026-11-20', status: 'In Stock' },
-  { id: 'P104', name: 'Glyphosate 41% SL 1L', category: 'Pesticides', brand: 'Syngenta', gst: 18, purchasePrice: 380, sellingPrice: 450, stock: 42, unit: 'Bottles', batch: 'BT2025D', expiry: '2026-10-05', status: 'In Stock' },
-  { id: 'P105', name: 'Soybean Seeds JS-335 30kg', category: 'Seeds', brand: 'Mahyco', gst: 0, purchasePrice: 2800, sellingPrice: 3200, stock: 0, unit: 'Bags', batch: 'BT2026E', expiry: '2027-04-12', status: 'Out of Stock' },
-  { id: 'P106', name: 'Copper Oxychloride Fungicide 500g', category: 'Fungicides', brand: 'Bayer', gst: 18, purchasePrice: 290, sellingPrice: 350, stock: 15, unit: 'Packets', batch: 'BT2024F', expiry: '2026-09-28', status: 'Expiring Soon' },
-  { id: 'P107', name: 'Knapsack Battery Sprayer 16L', category: 'Tools', brand: 'Aspee', gst: 18, purchasePrice: 2200, sellingPrice: 2750, stock: 12, unit: 'Units', batch: 'BT2025G', expiry: 'N/A', status: 'In Stock' },
+  { id: 101, product_id: 101, name: 'DAP Fertilizer 50kg', category: 'Fertilizers', brand: 'IFFCO', gst: 5, gst_rate: 5, purchasePrice: 1200, purchase_price: 1200, sellingPrice: 1350, selling_price: 1350, stock: 35, current_stock: 35, unit: 'Bags', batch: 'BT2026A', expiry: '2027-08-15', status: 'Low Stock' },
+  { id: 102, product_id: 102, name: 'Urea Fertilizer 45kg', category: 'Fertilizers', brand: 'KRIBHCO', gst: 5, gst_rate: 5, purchasePrice: 242, purchase_price: 242, sellingPrice: 266, selling_price: 266, stock: 8, current_stock: 8, unit: 'Bags', batch: 'BT2026B', expiry: '2028-01-10', status: 'Low Stock' },
+  { id: 103, product_id: 103, name: 'NPK 19:19:19 1kg', category: 'Fertilizers', brand: 'Mahadhan', gst: 12, gst_rate: 12, purchasePrice: 140, purchase_price: 140, sellingPrice: 180, selling_price: 180, stock: 145, current_stock: 145, unit: 'Packets', batch: 'BT2025C', expiry: '2026-11-20', status: 'In Stock' },
+  { id: 104, product_id: 104, name: 'Glyphosate 41% SL 1L', category: 'Pesticides', brand: 'Syngenta', gst: 18, gst_rate: 18, purchasePrice: 380, purchase_price: 380, sellingPrice: 450, selling_price: 450, stock: 42, current_stock: 42, unit: 'Bottles', batch: 'BT2025D', expiry: '2026-10-05', status: 'In Stock' },
+  { id: 105, product_id: 105, name: 'Soybean Seeds JS-335 30kg', category: 'Seeds', brand: 'Mahyco', gst: 0, gst_rate: 0, purchasePrice: 2800, purchase_price: 2800, sellingPrice: 3200, selling_price: 3200, stock: 0, current_stock: 0, unit: 'Bags', batch: 'BT2026E', expiry: '2027-04-12', status: 'Out of Stock' },
+  { id: 106, product_id: 106, name: 'Copper Oxychloride Fungicide 500g', category: 'Fungicides', brand: 'Bayer', gst: 18, gst_rate: 18, purchasePrice: 290, purchase_price: 290, sellingPrice: 350, selling_price: 350, stock: 15, current_stock: 15, unit: 'Packets', batch: 'BT2024F', expiry: '2026-09-28', status: 'Expiring Soon' },
+  { id: 107, product_id: 107, name: 'Knapsack Battery Sprayer 16L', category: 'Tools', brand: 'Aspee', gst: 18, gst_rate: 18, purchasePrice: 2200, purchase_price: 2200, sellingPrice: 2750, selling_price: 2750, stock: 12, current_stock: 12, unit: 'Units', batch: 'BT2025G', expiry: 'N/A', status: 'In Stock' },
 ];
 
 export const initialFarmers = [
