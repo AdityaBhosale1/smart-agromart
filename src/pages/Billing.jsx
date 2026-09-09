@@ -28,6 +28,8 @@ import {
 } from 'lucide-react';
 import { initialProducts, initialFarmers } from '../data/mockData';
 import billingService from '../services/billingService';
+import productService from '../services/productService';
+import farmerService from '../services/farmerService';
 import { useShop } from '../context/ShopContext';
 
 
@@ -37,7 +39,7 @@ export const Billing = () => {
   // STATE MANAGEMENT
   // ------------------------------------------------------------------
   const [farmersList, setFarmersList] = useState(initialFarmers);
-  const [selectedFarmerId, setSelectedFarmerId] = useState(initialFarmers[0].id);
+  const [selectedFarmerId, setSelectedFarmerId] = useState(initialFarmers[0]?.id || 1);
   const [farmerSearch, setFarmerSearch] = useState('');
   
   // Products & Stock State
@@ -45,33 +47,55 @@ export const Billing = () => {
   const [productSearch, setProductSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
-  // Billing Cart State
-  const [cart, setCart] = useState([
-    { 
-      id: 'P101', 
-      name: 'DAP Fertilizer (50kg)', 
-      batch: 'DAP-B102', 
-      qty: 2, 
-      unit: 'Bag', 
-      rate: 1350, 
-      gst: 5, 
-      discount: 0, 
-      stock: 42,
-      hsn: '3105' 
-    },
-    { 
-      id: 'P102', 
-      name: 'Urea Fertilizer (45kg)', 
-      batch: 'UR-B215', 
-      qty: 1, 
-      unit: 'Bag', 
-      rate: 780, 
-      gst: 5, 
-      discount: 0, 
-      stock: 65,
-      hsn: '3102' 
+  // Billing Cart State (Default to empty array to prevent stale mock IDs)
+  const [cart, setCart] = useState([]);
+
+  // Load Live Supabase Products & Farmers on mount
+  React.useEffect(() => {
+    let isMounted = true;
+    async function loadLiveBillingData() {
+      try {
+        const [prods, frms] = await Promise.all([
+          productService.getProducts(),
+          farmerService.getFarmers()
+        ]);
+        if (isMounted) {
+          if (prods && prods.length > 0) {
+            const mappedProds = prods.map(p => ({
+              id: p.id,
+              name: p.name,
+              category: p.category || 'General',
+              sellingPrice: Number(p.selling_price) || 0,
+              stock: Number(p.current_stock) || 0,
+              unit: p.unit || 'Kg',
+              gst: Number(p.gst_rate) || 5,
+              hsn: p.hsn_code || '3808',
+              batch: `BT-${p.id}`
+            }));
+            setProductsList(mappedProds);
+
+            // Filter out any stale cart items not matching live products
+            setCart(prevCart => {
+              if (!prevCart || prevCart.length === 0) return [];
+              const validCart = prevCart.filter(item => mappedProds.some(lp => String(lp.id) === String(item.id)));
+              if (validCart.length < prevCart.length) {
+                setErrorMessage('This product is no longer available and was removed from the cart.');
+              }
+              return validCart;
+            });
+          }
+          if (frms && frms.length > 0) {
+            setFarmersList(frms);
+            setSelectedFarmerId(frms[0].id);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed loading live Supabase products/farmers:', err.message);
+      }
     }
-  ]);
+    loadLiveBillingData();
+    return () => { isMounted = false; };
+  }, []);
 
   // Overall Discount & Payment State
   const [overallDiscount, setOverallDiscount] = useState(0);
@@ -111,7 +135,7 @@ export const Billing = () => {
       return;
     }
 
-    const existingIndex = cart.findIndex(item => item.id === product.id);
+    const existingIndex = cart.findIndex(item => String(item.id) === String(product.id));
 
     if (existingIndex > -1) {
       const updatedCart = [...cart];
@@ -134,7 +158,7 @@ export const Billing = () => {
           gst: product.gst,
           discount: 0,
           stock: product.stock,
-          hsn: '3105'
+          hsn: product.hsn || '3808'
         }
       ]);
     }
@@ -142,7 +166,7 @@ export const Billing = () => {
 
   const updateCartQty = (id, newQty) => {
     setErrorMessage('');
-    const targetItem = cart.find(item => item.id === id);
+    const targetItem = cart.find(item => String(item.id) === String(id));
     if (!targetItem) return;
 
     const parsedQty = Math.max(1, Number(newQty));
@@ -151,15 +175,15 @@ export const Billing = () => {
       return;
     }
 
-    setCart(cart.map(item => item.id === id ? { ...item, qty: parsedQty } : item));
+    setCart(cart.map(item => String(item.id) === String(id) ? { ...item, qty: parsedQty } : item));
   };
 
   const updateCartDiscount = (id, newDiscount) => {
-    setCart(cart.map(item => item.id === id ? { ...item, discount: Math.max(0, Number(newDiscount)) } : item));
+    setCart(cart.map(item => String(item.id) === String(id) ? { ...item, discount: Math.max(0, Number(newDiscount)) } : item));
   };
 
   const removeFromCart = (id) => {
-    setCart(cart.filter(item => item.id !== id));
+    setCart(cart.filter(item => String(item.id) !== String(id)));
   };
 
   const handleResetBill = () => {
@@ -219,8 +243,13 @@ export const Billing = () => {
     }
 
     for (let item of cart) {
-      if (item.qty <= 0) {
-        setErrorMessage(`Invalid quantity for ${item.name}. Must be greater than 0.`);
+      if (!item.id || item.qty <= 0) {
+        setErrorMessage(`Invalid details in cart for product ${item.name || ''}.`);
+        return;
+      }
+      const liveProd = productsList.find(p => String(p.id) === String(item.id));
+      if (!liveProd) {
+        setErrorMessage(`Cannot generate bill: Product '${item.name}' (ID ${item.id}) no longer exists in live inventory.`);
         return;
       }
       if (item.qty > item.stock) {
@@ -250,7 +279,7 @@ export const Billing = () => {
     setSubmitting(true);
 
     try {
-      // Build RPC payload for create_agromart_bill
+      // Build RPC payload for create_agromart_bill with exact numeric product IDs
       const payload = {
         farmer_id: currentFarmer.id && !isNaN(Number(currentFarmer.id)) ? Number(currentFarmer.id) : null,
         farmer_name: currentFarmer.name || 'Walk-in Customer',
@@ -263,7 +292,7 @@ export const Billing = () => {
         due_date: pendingCreditAmount > 0 ? (dueDate ? new Date(dueDate).toISOString() : null) : null,
         notes: `Billing POS Invoice for ${currentFarmer.name}`,
         items: cart.map(item => ({
-          product_id: Number(item.id.toString().replace(/\D/g, '')) || 1,
+          product_id: Number(item.id),
           quantity: Number(item.qty),
           discount_amount: Number(item.discount || 0)
         }))
